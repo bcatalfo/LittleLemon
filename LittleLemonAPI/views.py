@@ -61,3 +61,11 @@ def category_detail(request, pk):
 @permission_classes([IsAuthenticated])
 def secret(request):
     return Response({"message": "Steven is a noob!"})
+
+
+@api_view()
+@permission_classes([IsAuthenticated])
+def manager_view(request):
+    if request.user.groups.filter(name="Manager").exists():
+        return Response({"message": "Only Manager Should See This"})
+    return Response({"message": "You are not authorized"}, 403)
