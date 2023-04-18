@@ -10,6 +10,7 @@ django-types = "*"
 pyright = "*"
 djangorestframework-xml = "*"
 djoser = "*"
+djangorestframework-simplejwt = "~=5.2.1"
 
 [dev-packages]
 
