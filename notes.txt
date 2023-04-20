@@ -1,0 +1,11 @@
+username: admin
+password: coursera
+
+username: janedoe
+password: janedoecoursera
+
+username: jimmydoe
+password: jimmydoecoursera
+
+username: johndoe
+password: johndoecoursera
