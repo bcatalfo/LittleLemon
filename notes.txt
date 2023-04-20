@@ -9,3 +9,6 @@ password: jimmydoecoursera
 
 username: johndoe
 password: johndoecoursera
+
+username: newuser
+password: newusercoursera

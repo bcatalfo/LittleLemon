@@ -145,7 +145,7 @@ REST_FRAMEWORK = {
     },
 }
 
-DJOSER = {"USER_ID_FIELD": "username", "LOGIN_FIELD": "email"}
+DJOSER = {"USER_ID_FIELD": "username"}
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=1),
