@@ -150,3 +150,5 @@ DJOSER = {"USER_ID_FIELD": "username"}
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=1),
 }
+
+APPEND_SLASH = False
