@@ -12,7 +12,7 @@ from .serializers import CategorySerializer, MenuItemSerializer
 from .throttles import TenCallsPerMinute
 
 
-@api_view(["GET", "POST"])
+@api_view(["GET", "POST", "PUT", "PATCH", "DELETE"])
 def menu_items(request):
     if request.method == "GET":
         items = MenuItem.objects.select_related("category").all()
@@ -38,6 +38,8 @@ def menu_items(request):
             items = []
         serialized_item = MenuItemSerializer(items, many=True)
         return Response(serialized_item.data)
+    if not request.user.groups.filter(name="Manager").exists():
+        return Response("You must be a Manager to do this.", status.HTTP_403_FORBIDDEN)
     if request.method == "POST":
         serialized_item = MenuItemSerializer(data=request.data)
         serialized_item.is_valid(raise_exception=True)
