@@ -104,21 +104,22 @@ class IsManager(BasePermission):
         return request.user.groups.filter(name="Manager").exists()
 
 
-@api_view(["GET", "POST"])
+@api_view(["GET", "POST", "DELETE"])
 @permission_classes([IsManager])
 def managers(request):
-    managers = Group.objects.get(name="Manager")
+    manager_users = User.objects.filter(groups__name="Manager")
     if request.method == "GET":
         return Response(
-            UserSerializer(managers.user_set.all(), many=True).data,
+            UserSerializer(manager_users.all(), many=True).data,
             status=status.HTTP_200_OK,
         )
     username = request.data["username"]
     if username:
         user = get_object_or_404(User, username=username)
+        manager_group = Group.objects.get(name="Manager")
         if request.method == "POST":
-            managers.user_set.add(user)
+            user.groups.add(manager_group)
         elif request.method == "DELETE":
-            managers.user_set.remove(user)
+            user.groups.remove(manager_group)
         return Response({"message": "ok"})
     return Response({"message": "error"}, status.HTTP_400_BAD_REQUEST)
