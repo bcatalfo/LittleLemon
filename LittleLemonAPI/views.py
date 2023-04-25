@@ -3,7 +3,7 @@ from django.contrib.auth.models import User, Group
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes, throttle_classes
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import BasePermission, IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 
@@ -101,6 +101,9 @@ def throttle_check_auth(request):
 
 @api_view(["POST"])
 @permission_classes([IsAdminUser])
+class IsManager(BasePermission):
+    def has_permission(self, request, view):
+        return request.user.groups.filter(name="Manager").exists()
 def managers(request):
     username = request.data["username"]
     if username:
