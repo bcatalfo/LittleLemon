@@ -47,11 +47,19 @@ def menu_items(request):
         return Response(serialized_item.data, status.HTTP_201_CREATED)
 
 
-@api_view()
+@api_view(["GET", "PUT", "PATCH", "DELETE"])
 def single_item(request, id):
     item = get_object_or_404(MenuItem, pk=id)
-    serialized_item = MenuItemSerializer(item)
-    return Response(serialized_item.data)
+    if request.method == "GET":
+        serialized_item = MenuItemSerializer(item)
+        return Response(serialized_item.data)
+    if not request.user.groups.filter(name="Manager").exists():
+        return Response("You must be a Manager to do this.", status.HTTP_403_FORBIDDEN)
+    if request.method == "PUT" or request.method == "PATCH":
+        serialized_item = MenuItemSerializer(item, data=request.data, partial=True)
+        serialized_item.is_valid(raise_exception=True)
+        serialized_item.save()
+        return Response(serialized_item.data, status.HTTP_200_OK)
 
 
 @api_view()
