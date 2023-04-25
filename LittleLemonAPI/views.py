@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 
 from .models import Category, MenuItem
-from .serializers import CategorySerializer, MenuItemSerializer
+from .serializers import CategorySerializer, MenuItemSerializer, UserSerializer
 from .throttles import TenCallsPerMinute
 
 
@@ -99,16 +99,23 @@ def throttle_check_auth(request):
     return Response({"message": "message for the logged in users only"})
 
 
-@api_view(["POST"])
-@permission_classes([IsAdminUser])
 class IsManager(BasePermission):
     def has_permission(self, request, view):
         return request.user.groups.filter(name="Manager").exists()
+
+
+@api_view(["GET", "POST"])
+@permission_classes([IsManager])
 def managers(request):
+    managers = Group.objects.get(name="Manager")
+    if request.method == "GET":
+        return Response(
+            UserSerializer(managers.user_set.all(), many=True).data,
+            status=status.HTTP_200_OK,
+        )
     username = request.data["username"]
     if username:
         user = get_object_or_404(User, username=username)
-        managers = Group.objects.get(name="Manager")
         if request.method == "POST":
             managers.user_set.add(user)
         elif request.method == "DELETE":
