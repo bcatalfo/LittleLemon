@@ -60,6 +60,9 @@ def single_item(request, id):
         serialized_item.is_valid(raise_exception=True)
         serialized_item.save()
         return Response(serialized_item.data, status.HTTP_200_OK)
+    if request.method == "DELETE":
+        item.delete()
+        return Response("Deleted item", status.HTTP_200_OK)
 
 
 @api_view()
