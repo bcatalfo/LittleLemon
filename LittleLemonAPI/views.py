@@ -119,7 +119,7 @@ def managers(request):
         manager_group = Group.objects.get(name="Manager")
         if request.method == "POST":
             user.groups.add(manager_group)
+            return Response({"message": "ok"}, status=status.HTTP_201_CREATED)
         elif request.method == "DELETE":
             user.groups.remove(manager_group)
-        return Response({"message": "ok"})
-    return Response({"message": "error"}, status.HTTP_400_BAD_REQUEST)
+            return Response({"message": "ok"}, status=status.HTTP_200_OK)
