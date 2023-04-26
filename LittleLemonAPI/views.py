@@ -2,13 +2,19 @@ from django.core.paginator import EmptyPage, Paginator
 from django.contrib.auth.models import User, Group
 from django.shortcuts import get_object_or_404
 from rest_framework import status
+from rest_framework.compat import requests
 from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.permissions import BasePermission, IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 
-from .models import Category, MenuItem
-from .serializers import CategorySerializer, MenuItemSerializer, UserSerializer
+from .models import Cart, Category, MenuItem
+from .serializers import (
+    CartSerializer,
+    CategorySerializer,
+    MenuItemSerializer,
+    UserSerializer,
+)
 from .throttles import TenCallsPerMinute
 
 
@@ -156,3 +162,30 @@ def deliverycrew_user(request, id):
     deliverycrew_group = Group.objects.get(name="Delivery crew")
     user.groups.remove(deliverycrew_group)
     return Response({"message": "ok"}, status=status.HTTP_200_OK)
+
+
+@api_view(["GET", "POST", "DELETE"])
+@permission_classes([IsAuthenticated])
+def cartitems(request):
+    if request.method == "GET":
+        items = Cart.objects.filter(user=request.user)
+        return Response(
+            CartSerializer(items.all(), many=True).data, status=status.HTTP_200_OK
+        )
+    if request.method == "POST":
+        itemid = request.data["item"]
+        quantity = int(request.data["quantity"])
+        menuitem = MenuItem.objects.get(id=itemid)
+        cart = Cart(
+            user=request.user,
+            menuitem=menuitem,
+            quantity=quantity,
+            unit_price=menuitem.price,
+            price=menuitem.price * quantity,
+        )
+        cart.save()
+        return Response(CartSerializer(cart).data, status=status.HTTP_201_CREATED)
+    if request.method == "DELETE":
+        items = Cart.objects.filter(user=request.user)
+        items.delete()
+        return Response("Emptied cart", status=status.HTTP_200_OK)
