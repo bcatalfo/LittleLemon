@@ -1,7 +1,14 @@
 from rest_framework import serializers
-from .models import MenuItem, Category
+from .models import Cart, MenuItem, Category
 from decimal import Decimal
 from django.contrib.auth.models import User
+
+
+class CartSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Cart
+        fields = ["menuitem", "quantity"]
+        depth = 1
 
 
 class UserSerializer(serializers.ModelSerializer):
