@@ -104,7 +104,7 @@ class IsManager(BasePermission):
         return request.user.groups.filter(name="Manager").exists()
 
 
-@api_view(["GET", "POST", "DELETE"])
+@api_view(["GET", "POST"])
 @permission_classes([IsManager])
 def managers(request):
     manager_users = User.objects.filter(groups__name="Manager")
@@ -120,6 +120,12 @@ def managers(request):
         if request.method == "POST":
             user.groups.add(manager_group)
             return Response({"message": "ok"}, status=status.HTTP_201_CREATED)
-        elif request.method == "DELETE":
-            user.groups.remove(manager_group)
-            return Response({"message": "ok"}, status=status.HTTP_200_OK)
+
+
+@api_view(["DELETE"])
+@permission_classes([IsManager])
+def managers_user(request, id):
+    user = get_object_or_404(User, id=id)
+    manager_group = Group.objects.get(name="Manager")
+    user.groups.remove(manager_group)
+    return Response({"message": "ok"}, status=status.HTTP_200_OK)
