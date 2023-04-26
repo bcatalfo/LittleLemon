@@ -198,7 +198,10 @@ def order(request):
     if request.method == "GET":
         if request.user.groups.filter(name="Manager").exists():
             # do manager stuff
-            ...
+            items = Order.objects.all()
+            return Response(
+                OrderSerializer(items, many=True).data, status=status.HTTP_200_OK
+            )
         elif request.user.groups.filter(name="Delivery crew").exists():
             # do delivery crew stuff
             ...
