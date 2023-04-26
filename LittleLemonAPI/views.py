@@ -204,7 +204,10 @@ def order(request):
             )
         elif request.user.groups.filter(name="Delivery crew").exists():
             # do delivery crew stuff
-            ...
+            items = Order.objects.filter(delivery_crew=request.user)
+            return Response(
+                OrderSerializer(items, many=True).data, status=status.HTTP_200_OK
+            )
         else:
             # do customer stuff
             items = Order.objects.filter(user=request.user)
