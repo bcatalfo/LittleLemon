@@ -260,10 +260,10 @@ def order_item(request, id):
             if orderstatus is not None:
                 order.status = orderstatus
             if delivery_crew is not None:
-                deliverer = get_object_or_404(User, id=delivery_crew)
+                deliverer = get_object_or_404(User, username=delivery_crew)
                 if not deliverer.groups.filter(name="Delivery crew").exists():
                     return Response(
-                        f"User with id {delivery_crew} is not in the delivery crew",
+                        f"User with username {delivery_crew} is not in the delivery crew",
                         status=status.HTTP_400_BAD_REQUEST,
                     )
                 order.delivery_crew = deliverer
