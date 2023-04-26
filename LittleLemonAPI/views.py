@@ -147,3 +147,12 @@ def deliverycrew(request):
         if request.method == "POST":
             user.groups.add(deliverycrew_group)
             return Response({"message": "ok"}, status=status.HTTP_201_CREATED)
+
+
+@api_view(["DELETE"])
+@permission_classes([IsManager])
+def deliverycrew_user(request, id):
+    user = get_object_or_404(User, id=id)
+    deliverycrew_group = Group.objects.get(name="Delivery crew")
+    user.groups.remove(deliverycrew_group)
+    return Response({"message": "ok"}, status=status.HTTP_200_OK)

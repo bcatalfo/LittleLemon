@@ -14,4 +14,5 @@ urlpatterns = [
     path("groups/manager/users", views.managers),
     path("groups/manager/users/<int:id>", views.managers_user),
     path("groups/delivery-crew/users", views.deliverycrew),
+    path("groups/delivery-crew/users/<int:id>", views.deliverycrew_user),
 ]
