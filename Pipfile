@@ -6,11 +6,11 @@ name = "pypi"
 [packages]
 djangorestframework = "*"
 django = "*"
-django-types = "*"
-pyright = "*"
 djangorestframework-xml = "*"
 djoser = "*"
 djangorestframework-simplejwt = "~=5.2.1"
+jedi = "*"
+django-types = "*"
 
 [dev-packages]
 

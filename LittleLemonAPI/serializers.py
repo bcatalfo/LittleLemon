@@ -22,8 +22,8 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ["user", "orderitems", "status", "total", "date"]
-        depth = 1
+        fields = ["id", "user", "orderitems", "status", "total", "date"]
+        depth = 2
 
 
 class CartSerializer(serializers.ModelSerializer):

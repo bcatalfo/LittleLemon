@@ -17,4 +17,5 @@ urlpatterns = [
     path("groups/delivery-crew/users/<int:id>", views.deliverycrew_user),
     path("cart/menu-items", views.cartitems),
     path("orders", views.order),
+    path("orders/<int:id>", views.order_item),
 ]

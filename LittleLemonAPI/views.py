@@ -232,3 +232,55 @@ def order(request):
         order.total = total
         order.save()
         return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
+
+
+@api_view(["GET", "PUT", "PATCH", "DELETE"])
+@permission_classes([IsAuthenticated])
+def order_item(request, id):
+    if request.method == "GET":
+        order = get_object_or_404(Order, id=id)
+        if request.user != order.user:
+            return Response("This is not your order.", status=status.HTTP_403_FORBIDDEN)
+        return Response(OrderSerializer(order).data, status=status.HTTP_200_OK)
+    if request.method == "PUT":
+        order = get_object_or_404(Order, id=id)
+        if not request.user.groups.filter(name="Manager").exists():
+            return Response(
+                "You must be a manager to edit the order.",
+                status.HTTP_403_FORBIDDEN,
+            )
+        serialized_order = OrderSerializer(request.data, partial=True)
+        serialized_order.is_valid(raise_exception=True)
+        serialized_order.save()
+    if request.method == "PATCH":
+        order = get_object_or_404(Order, id=id)
+        orderstatus = request.data.get("status", None)
+        delivery_crew = request.data.get("delivery_crew", None)
+        if request.user.groups.filter(name="Manager").exists():
+            if orderstatus is not None:
+                order.status = orderstatus
+            if delivery_crew is not None:
+                deliverer = get_object_or_404(User, id=delivery_crew)
+                if not deliverer.groups.filter(name="Delivery crew").exists():
+                    return Response(
+                        f"User with id {delivery_crew} is not in the delivery crew",
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+                order.delivery_crew = deliverer
+            order.save()
+            return Response(OrderSerializer(order).data, status=status.HTTP_200_OK)
+        if request.user.groups.filter(name="Delivery crew").exists():
+            if orderstatus is not None:
+                order.status = orderstatus
+            order.save()
+            return Response(OrderSerializer(order).data, status=status.HTTP_200_OK)
+
+    if request.method == "DELETE":
+        order = get_object_or_404(Order, id=id)
+        if request.user.groups.filter(name="Manager").exists():
+            order.delete()
+            return Response("Order deleted", status=status.HTTP_200_OK)
+        return Response(
+            "You must be a manager to delete an order.",
+            status=status.HTTP_403_FORBIDDEN,
+        )
