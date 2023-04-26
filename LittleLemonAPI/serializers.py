@@ -1,7 +1,29 @@
 from rest_framework import serializers
-from .models import Cart, MenuItem, Category
+from .models import Cart, MenuItem, Category, Order, OrderItem
 from decimal import Decimal
 from django.contrib.auth.models import User
+
+
+class OrderItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderItem
+        fields = ["menuitem", "quantity", "unit_price", "price"]
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "username", "first_name", "last_name", "email"]
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    orderitems = OrderItemSerializer(many=True)
+    user = UserSerializer()
+
+    class Meta:
+        model = Order
+        fields = ["user", "orderitems", "status", "total", "date"]
+        depth = 1
 
 
 class CartSerializer(serializers.ModelSerializer):
@@ -9,12 +31,6 @@ class CartSerializer(serializers.ModelSerializer):
         model = Cart
         fields = ["menuitem", "quantity"]
         depth = 1
-
-
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ["id", "username", "first_name", "last_name", "email"]
 
 
 class CategorySerializer(serializers.ModelSerializer):

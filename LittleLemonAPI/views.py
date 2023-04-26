@@ -2,17 +2,18 @@ from django.core.paginator import EmptyPage, Paginator
 from django.contrib.auth.models import User, Group
 from django.shortcuts import get_object_or_404
 from rest_framework import status
-from rest_framework.compat import requests
 from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.permissions import BasePermission, IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
+from datetime import date
 
-from .models import Cart, Category, MenuItem
+from .models import Cart, Category, MenuItem, Order, OrderItem
 from .serializers import (
     CartSerializer,
     CategorySerializer,
     MenuItemSerializer,
+    OrderSerializer,
     UserSerializer,
 )
 from .throttles import TenCallsPerMinute
@@ -189,3 +190,39 @@ def cartitems(request):
         items = Cart.objects.filter(user=request.user)
         items.delete()
         return Response("Emptied cart", status=status.HTTP_200_OK)
+
+
+@api_view(["GET", "POST"])
+@permission_classes([IsAuthenticated])
+def order(request):
+    if request.method == "GET":
+        if request.user.groups.filter(name="Manager").exists():
+            # do manager stuff
+            ...
+        elif request.user.groups.filter(name="Delivery crew").exists():
+            # do delivery crew stuff
+            ...
+        else:
+            # do customer stuff
+            items = Order.objects.filter(user=request.user)
+            return Response(
+                OrderSerializer(items, many=True).data, status=status.HTTP_200_OK
+            )
+    if request.method == "POST":
+        order = Order(user=request.user, total=0, date=date.today())
+        order.save()
+        total = 0
+        for item in Cart.objects.filter(user=request.user):
+            orderitem = OrderItem(
+                order=order,
+                menuitem=item.menuitem,
+                quantity=item.quantity,
+                unit_price=item.unit_price,
+                price=item.price,
+            )
+            orderitem.save()
+            total += item.price
+            item.delete()
+        order.total = total
+        order.save()
+        return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
