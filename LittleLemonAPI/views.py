@@ -129,3 +129,21 @@ def managers_user(request, id):
     manager_group = Group.objects.get(name="Manager")
     user.groups.remove(manager_group)
     return Response({"message": "ok"}, status=status.HTTP_200_OK)
+
+
+@api_view(["GET", "POST"])
+@permission_classes([IsManager])
+def deliverycrew(request):
+    delieverycrew_users = User.objects.filter(groups__name="Delivery crew")
+    if request.method == "GET":
+        return Response(
+            UserSerializer(delieverycrew_users.all(), many=True).data,
+            status=status.HTTP_200_OK,
+        )
+    username = request.data["username"]
+    if username:
+        user = get_object_or_404(User, username=username)
+        deliverycrew_group = Group.objects.get(name="Delivery crew")
+        if request.method == "POST":
+            user.groups.add(deliverycrew_group)
+            return Response({"message": "ok"}, status=status.HTTP_201_CREATED)
